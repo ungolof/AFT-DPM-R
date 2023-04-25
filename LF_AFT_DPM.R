@@ -1,5 +1,5 @@
 ####################################################################################################
-# - File for the AFT model where there is a fixed intercept
+# - File for the MCMC sampler of the Accelerated Failure Time model where there is a fixed intercept
 ####################################################################################################
 
 library(CASdatasets)
