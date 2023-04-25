@@ -182,12 +182,6 @@ S_unit_fc <- function(unit){
   piece2 <- sum(beta2[i-1,] * X2_cov[unit,]) # t_i[unit] * exp(alpha2[i-1,1] + sum(beta2[i-1,] * X2_cov[unit,]))
   piece3 <- sum(beta3[i-1,] * X3_cov[unit,])
   
-  #pf_vector <- sapply(c(1:K), FUN = pf_vector_fc)
-  # - pf_vector in vectorized form
-  #  pf_vector <- log(pi_mw[i-1,]) + d_ci[unit,1] * dnorm(y_i[unit,1], mean = (piece1 + theta_s1_lp), sd = sqrt(sigma2_c[i-1,1]), log=TRUE) + (1 - d_ci[unit,1]) * pnorm(y_i[unit], mean = (piece1 + theta_s1_lp), sd = sqrt(sigma2_c[i-1,1]), log=TRUE, lower.tail = FALSE) +
-  #                                  d_ci[unit,2] * dnorm(y_i[unit,2], mean = (piece2 + theta_s2_lp), sd = sqrt(sigma2_c[i-1,2]), log=TRUE) + (1 - d_ci[unit,2]) * pnorm(y_i[unit], mean = (piece2 + theta_s2_lp), sd = sqrt(sigma2_c[i-1,2]), log=TRUE, lower.tail = FALSE) +
-  #                                  d_ci[unit,3] * dnorm(y_i[unit,3], mean = (piece3 + theta_s3_lp), sd = sqrt(sigma2_c[i-1,3]), log=TRUE) + (1 - d_ci[unit,3]) * pnorm(y_i[unit], mean = (piece3 + theta_s3_lp), sd = sqrt(sigma2_c[i-1,3]), log=TRUE, lower.tail = FALSE)
-  
   pf_vector <- log(pi_mw[i-1,]) + dnorm(y_i[unit,1], mean = (piece1 + theta_s1_lp), sd = sqrt(sigma2_c[i-1,1]), log=TRUE) + 
                                   dnorm(y_i[unit,2], mean = (piece2 + theta_s2_lp), sd = sqrt(sigma2_c[i-1,2]), log=TRUE) + 
                                   dnorm(y_i[unit,3], mean = (piece3 + theta_s3_lp), sd = sqrt(sigma2_c[i-1,3]), log=TRUE) 
@@ -206,33 +200,20 @@ S_unit_fc <- function(unit){
 
 pnorm1_fc <- function(unit){
   
-  #  prob1 <- pnorm(log(t_i[unit]), mean = (sum(beta1[i-1,] * X1_cov[unit,]) + theta_star[i-1,(1 + M * (S_unit[unit] - 1))]), sd = sqrt(sigma2_c[i-1,1]), lower.tail = TRUE)
-  
-  #  unif1 <- runif(1, prob1, 1)
-  
-  #  y_output <- ifelse(d_ci[unit,1]==1, log(t_i[unit]), qnorm(unif1, mean = (sum(beta1[i-1,] * X1_cov[unit,]) + theta_star[i-1,(1 + M * (S_unit[unit] - 1))]), sd = sqrt(sigma2_c[i-1,1]), lower.tail = TRUE))
   y_output <- ifelse(d_ci[unit,1]==1, log(t_i[unit]), rtruncnorm(1, a=log(t_i[unit]), b=6, mean = (sum(beta1[i-1,] * X1_cov[unit,]) + theta_star[i-1,(1 + M * (S_unit[unit] - 1))]), sd = sqrt(sigma2_c[i-1,1])))
   
   return(y_output)
 }
 
 pnorm2_fc <- function(unit){
-  #  prob2 <- pnorm(log(t_i[unit]), mean = (sum(beta2[i-1,] * X2_cov[unit,]) + theta_star[i-1,(2 + M * (S_unit[unit] - 1))]), sd = sqrt(sigma2_c[i-1,2]), lower.tail = TRUE)
-  
-  #  unif2 <- runif(1, prob2, 1)
-  
-  #  y_output <- ifelse(d_ci[unit,2]==1, log(t_i[unit]), qnorm(unif2, mean = (sum(beta2[i-1,] * X2_cov[unit,]) + theta_star[i-1,(2 + M * (S_unit[unit] - 1))]), sd = sqrt(sigma2_c[i-1,2]), lower.tail = TRUE))
+
   y_output <- ifelse(d_ci[unit,2]==1, log(t_i[unit]), rtruncnorm(1, a=log(t_i[unit]), b=6, mean = (sum(beta2[i-1,] * X2_cov[unit,]) + theta_star[i-1,(2 + M * (S_unit[unit] - 1))]), sd = sqrt(sigma2_c[i-1,2])))
   
   return(y_output)
 }
 
 pnorm3_fc <- function(unit){
-  #  prob3 <- pnorm(log(t_i[unit]), mean = (sum(beta3[i-1,] * X3_cov[unit,]) + theta_star[i-1,(3 + M * (S_unit[unit] - 1))]), sd = sqrt(sigma2_c[i-1,3]), lower.tail = TRUE)
-  
-  #  unif3 <- runif(1, prob3, 1)
-  
-  #  y_output <- ifelse(d_ci[unit,3]==1, log(t_i[unit]), qnorm(unif3, mean = (sum(beta3[i-1,] * X3_cov[unit,]) + theta_star[i-1,(3 + M * (S_unit[unit] - 1))]), sd = sqrt(sigma2_c[i-1,3]), lower.tail = TRUE))
+
   y_output <- ifelse(d_ci[unit,3]==1, log(t_i[unit]), rtruncnorm(1, a=log(t_i[unit]), b=6, mean = (sum(beta3[i-1,] * X3_cov[unit,]) + theta_star[i-1,(3 + M * (S_unit[unit] - 1))]), sd = sqrt(sigma2_c[i-1,3])))
   
   return(y_output)
@@ -271,22 +252,16 @@ for(i in i:n_iter){
   }
   
   # - Step 3: Sample Beta_c
-  # - Step 3: Sample Beta_c
-  #Sigma_beta1_post <- solve(t(X1_cov) %*% diag((1 / sigma2_c[i-1,1]), sample_size) %*% X1_cov + solve(Sigma_beta1_prior))
   Sigma_beta1_post <- solve(t(X1_cov / sigma2_c[i-1,1]) %*% X1_cov + diag(1/Sigma_beta1_prior))
-  #Sigma_beta1_post <- solve((sample_size-1) * cov(X1_cov) / sigma2_c[i-1,1] + diag(1, R1))
   
   Sigma_beta2_post <- solve(t(X2_cov / sigma2_c[i-1,2]) %*% X2_cov + diag(1/Sigma_beta2_prior))
   
   Sigma_beta3_post <- solve(t(X3_cov / sigma2_c[i-1,3]) %*% X3_cov + diag(1/Sigma_beta3_prior))
   
-  #  mu_beta1_post <- Sigma_beta1_post %*% (t(X1_cov / sigma2_c[i-1,1]) %*% (y_i[,1] - theta_star[i-1,(1 + M * (S_unit - 1))]) + diag(1/Sigma_beta1_prior, R1) %*% mu_beta1_prior)
   mu_beta1_post <- Sigma_beta1_post %*% (t(X1_cov / sigma2_c[i-1,1]) %*% (y_i[,1] - theta_star[i-1,(1 + M * (S_unit - 1))]))
   
-  #  mu_beta2_post <- Sigma_beta2_post %*% (t(X2_cov / sigma2_c[i-1,2]) %*% (y_i[,2] - theta_star[i-1,(2 + M * (S_unit - 1))]) + diag(1/Sigma_beta2_prior, R2) %*% mu_beta2_prior)
   mu_beta2_post <- Sigma_beta2_post %*% (t(X2_cov / sigma2_c[i-1,2]) %*% (y_i[,2] - theta_star[i-1,(2 + M * (S_unit - 1))]))
   
-  #  mu_beta3_post <- Sigma_beta3_post %*% (t(X3_cov / sigma2_c[i-1,3]) %*% (y_i[,3] - theta_star[i-1,(3 + M * (S_unit - 1))]) + diag(1/Sigma_beta3_prior, R3) %*% mu_beta3_prior)
   mu_beta3_post <- Sigma_beta3_post %*% (t(X3_cov / sigma2_c[i-1,3]) %*% (y_i[,3] - theta_star[i-1,(3 + M * (S_unit - 1))]))
   
   beta1[i,] <- mvrnorm(n = 1, mu_beta1_post, Sigma_beta1_post)
@@ -300,9 +275,9 @@ for(i in i:n_iter){
   for(k in 1:K){
     N_k[k] <- sum(ifelse(S_unit==k,1,0)) # number of people with the same k - or within the same cluster
     
-    list1 <- ifelse(S_unit==k,1,0) * (y_i[,1] - (X1_cov %*% beta1[i,])) #  - beta1[i,1] * X1_cov[,1] - beta1[i,2] * X1_cov[,2] - beta1[i,3] * X1_cov[,3] - beta1[i,4] * X1_cov[,4] - beta1[i,5] * X1_cov[,5] - beta1[i,6] * X1_cov[,6] - beta1[i,7] * X1_cov[,7])
-    list2 <- ifelse(S_unit==k,1,0) * (y_i[,2] - (X2_cov %*% beta2[i,])) #  - beta2[i,1] * X2_cov[,1] - beta2[i,2] * X2_cov[,2] - beta2[i,3] * X2_cov[,3] - beta2[i,4] * X2_cov[,4] - beta2[i,5] * X2_cov[,5])
-    list3 <- ifelse(S_unit==k,1,0) * (y_i[,3] - (X3_cov %*% beta3[i,])) # beta3[i,1] * X3_cov[,1] - beta3[i,2] * X3_cov[,2] - beta3[i,3] * X3_cov[,3] - beta3[i,4] * X3_cov[,4])
+    list1 <- ifelse(S_unit==k,1,0) * (y_i[,1] - (X1_cov %*% beta1[i,])) 
+    list2 <- ifelse(S_unit==k,1,0) * (y_i[,2] - (X2_cov %*% beta2[i,])) 
+    list3 <- ifelse(S_unit==k,1,0) * (y_i[,3] - (X3_cov %*% beta3[i,])) 
     
     diff_vector <- c(sum(list1), sum(list2), sum(list3))
     
