@@ -7,3 +7,5 @@ The repository includes the code used for the analysis carried out in the paper
 1) Two-Step Data Augmentation MCMC sampler
 2) Analysis of the convergence of the MCMC sampler, goodness of fit, grouping
 3) Analysis of predictive ability
+
+Other models have been analysed. Please refer to the paper and to the supplementary material.
