@@ -369,7 +369,7 @@ for(i in i:n_iter){
   pi_zeta <- (lambda5 + N_c - 1) / (lambda5 + N_c - 1 + sample_size * (lambda6 - log(zeta) ))
   
   mix_subs <- sample(c(1, 0), 1, prob = c(pi_zeta, 1 - pi_zeta))
-  phi[i,1] <- rgamma(1, shape = (lambda5 + N_c - ifelse(mix_subs==0,0,1)), scale = lambda6 - log(zeta) )
+  phi[i,1] <- rgamma(1, shape = (lambda5 + N_c - ifelse(mix_subs==0,0,1)), rate = lambda6 - log(zeta) )
   
   
   #     })
